@@ -75,3 +75,17 @@ render() {
     <p>{props.detail}</p>
 </div>
 ```
+
+### Lifecycle: getDerivedStateFromProps
+[Replacing ‘componentWillReceiveProps’ with ‘getDerivedStateFromProps’](https://hackernoon.com/replacing-componentwillreceiveprops-with-getderivedstatefromprops-c3956f7ce607)  
+[Using Derived State in React](https://alligator.io/react/get-derived-state/)  
+[Refactor componentWillReceiveProps() to getDerivedStateFromProps() in React 16.3](https://egghead.io/lessons/react-refactor-componentwillreceiveprops-to-getderivedstatefromprops-in-react-16-3)  
+```javascript
+class Test extends React.Component {
+    //state
+    static getDerivedStateFromProps() {
+        //this keyword is not valid in here
+    }
+    //other code
+}
+```
