@@ -84,8 +84,92 @@ render() {
 class Test extends React.Component {
     //state
     static getDerivedStateFromProps() {
-        //this keyword is not valid in here
+        //"this" keyword is not valid in here
     }
     //other code
 }
 ```
+### this.setState callback function
+The this.setState has a "hidden" second function, a callback can be made trough this. The reason behind is the following:
+React batches setState calls together. For that reason, the following method might not work:
+```javascript
+state = { loading: false };
+this.setState({ loading: true });
+console.log(this.state.loading);
+//false
+```
+As said, setStates will be batched together and will not be call'd immediately. So this.setState will be invoked sometime in the future, after we call'd console.log.
+To prevent this issue, a callback can be made:
+
+```javascript
+state = { loading: false };
+this.setState({loading: true}, console.log(this.state.loading)); 
+//true
+```
+[Dan Abramov on twitter about batching setState calls](https://twitter.com/dan_abramov/status/887963264335872000?lang=en)  
+[Beware: React setState is asynchronous!](https://medium.com/@wereHamster/beware-react-setstate-is-asynchronous-ce87ef1a9cf3)  
+
+### Context API
+#### in render()
+See SearchBox.js for an example.
+```javascript
+//in ProviderComponent.js
+//define Provider, standard valuew and export it
+const componentContext = React.createContext({
+    value: 1, //standard value, might be overwritten in App.js
+    loading: false //standard value, might be overwritten in App.js
+});
+
+export const Provider = componentContext.Provider;
+export const Consumer = componentConext.Consumer;
+
+//in App.js (parent/root) 
+//import the provider and then wrap the components into the Provider component
+this.state = {
+    value: 1,
+    loading: false
+}
+
+render(
+    <Provider value={this.state}>
+        <ComponentParent />
+    </Provider>
+)
+
+//in ComponentParent.js (child/node/leaf) 
+//import Consumer and wrap all components with the Consumer
+<Consumer>
+    {context => ( //context is the state from App.js
+        <div>
+            <Component1 value={context.value} />
+            <Component2 loading={context.loading} />
+            <Component3 />
+        </div>
+    )}
+</Consumer>
+```
+Every Component can now access the Consumer-state, respectively Provider-state.
+
+#### in LifeCycleMethods
+See Results.js for an example.
+```javascript
+//in the components with the LifeCycleMethod export, it wraped within a function and afterwards you can use this.props for referencing to the state/context of the Provider
+componentDidMount() {
+    //use in here this.props
+    //eg:
+    this.props.variousParams.someItemFromState
+}
+export default function ComponentWithContext(props) {
+    return(
+        <Consumer>
+            {context => <Component {...props} variousParams={context} />}
+        </Consumer>
+    )
+}
+```
+
+### Portals
+[Tasks and Portals in React](https://medium.com/@MoneyhubEnterpr/tasks-and-portals-in-react-1df2438cdebb)  
+
+### refs
+Shall only be used with additional libraries like jQuery or D3. If you dont use such libraries, refs are seen as bad practice.
